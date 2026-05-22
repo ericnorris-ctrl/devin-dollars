@@ -7,11 +7,11 @@ import { cn } from "@/lib/utils";
 import { usePersona } from "./persona-context";
 
 const NAV_ITEMS = [
-  { href: "/pitch", label: "Pitch Initiative", icon: Lightbulb, personas: ["IT Leader", "BU Admin"] },
-  { href: "/decisions", label: "Funding Decisions", icon: Scale, personas: ["Finance Approver", "IT Leader"] },
-  { href: "/projects", label: "Active Projects", icon: FolderOpen, personas: ["IT Leader", "Finance Approver", "BU Admin"] },
-  { href: "/leaderboard", label: "Usage Leaderboard", icon: BarChart3, personas: ["Finance Approver", "BU Admin"] },
-] as const;
+  { href: "/pitch", label: "Pitch Initiative", icon: Lightbulb, personas: ["IT Leader", "BU Admin"] as string[] },
+  { href: "/decisions", label: "Funding Decisions", icon: Scale, personas: ["Finance Approver", "IT Leader"] as string[] },
+  { href: "/projects", label: "Active Projects", icon: FolderOpen, personas: ["IT Leader", "Finance Approver", "BU Admin"] as string[] },
+  { href: "/leaderboard", label: "Usage Leaderboard", icon: BarChart3, personas: ["Finance Approver", "BU Admin"] as string[] },
+];
 
 export function Sidebar() {
   const pathname = usePathname();

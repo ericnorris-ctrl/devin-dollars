@@ -50,10 +50,10 @@ export function BurnChart({
         <LineChart data={chartData} margin={{ top: 5, right: 20, bottom: 5, left: 10 }}>
           <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
           <XAxis dataKey="week" tick={{ fontSize: 11, fill: "#94a3b8" }} tickLine={false} axisLine={{ stroke: "#e2e8f0" }} />
-          <YAxis tick={{ fontSize: 11, fill: "#94a3b8" }} tickLine={false} axisLine={false} tickFormatter={(v: number) => `${(v / 1000).toFixed(0)}k`} />
+          <YAxis tick={{ fontSize: 11, fill: "#94a3b8" }} tickLine={false} axisLine={false} tickFormatter={(v) => `${(Number(v) / 1000).toFixed(0)}k`} />
           <Tooltip
             contentStyle={{ borderRadius: 12, border: "1px solid #e2e8f0", fontSize: 12, boxShadow: "0 4px 12px rgba(0,0,0,0.08)" }}
-            formatter={(value: number, name: string) => [value.toLocaleString() + " ACUs", name === "actual" ? "Actual Burn" : "Expected Burn"]}
+            formatter={(value, name) => [Number(value).toLocaleString() + " ACUs", name === "actual" ? "Actual Burn" : "Expected Burn"]}
           />
           <ReferenceLine y={totalAcus} stroke="#ef4444" strokeDasharray="4 4" label={{ value: "Budget", fill: "#ef4444", fontSize: 11 }} />
           <Line type="monotone" dataKey="expected" stroke="#94a3b8" strokeWidth={2} strokeDasharray="6 3" dot={false} />
