@@ -2,6 +2,7 @@ import Database from "better-sqlite3";
 import path from "path";
 import fs from "fs";
 
+const IS_VERCEL = !!process.env.VERCEL;
 const DB_PATH = path.join(process.cwd(), "data", "devin-dollars.db");
 
 let _db: Database.Database | null = null;
@@ -9,17 +10,24 @@ let _db: Database.Database | null = null;
 export function getDb(): Database.Database {
   if (_db) return _db;
 
-  const dir = path.dirname(DB_PATH);
-  if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+  if (IS_VERCEL) {
+    // Vercel has a read-only filesystem — use in-memory DB with seed
+    _db = new Database(":memory:");
+    _db.pragma("foreign_keys = ON");
+    initSchema(_db);
+    seedData(_db);
+  } else {
+    // Local dev — persist to disk
+    const dir = path.dirname(DB_PATH);
+    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+    const isNew = !fs.existsSync(DB_PATH);
+    _db = new Database(DB_PATH);
+    _db.pragma("journal_mode = WAL");
+    _db.pragma("foreign_keys = ON");
+    initSchema(_db);
+    if (isNew) seedData(_db);
+  }
 
-  const isNew = !fs.existsSync(DB_PATH);
-  _db = new Database(DB_PATH);
-  _db.pragma("journal_mode = WAL");
-  _db.pragma("foreign_keys = ON");
-
-  initSchema(_db);
-
-  if (isNew) seedData(_db);
   return _db;
 }
 
