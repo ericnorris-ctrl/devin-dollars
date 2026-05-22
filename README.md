@@ -1,36 +1,77 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Devin Dollars — ACU Project Tracker
 
-## Getting Started
+A demo web app for IT leaders and CFOs to track "Devin Dollars" (ACU) allocation, consumption, and ROI across IT initiatives. Built as a self-contained Next.js application with seeded data so it works offline and tells a complete story in a five-minute walkthrough.
 
-First, run the development server:
+## Setup
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+# Open http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+The database seeds automatically on first run — no additional setup required.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Demo Flow (5 minutes)
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+1. **Global KPIs** — Point to the dark strip at the top: total ACUs allocated/consumed, projected savings, and session tagging rate.
+2. **`/pitch`** — Submit a new initiative with realistic numbers. Watch the savings math compute live and see the Devin Funding Score update in real time.
+3. **`/decisions`** — Review the funding queue. Expand a pending pitch to see the full details and score breakdown. Approve it.
+4. **`/projects/[id]`** — Open an active project. Show the three headline cards: ACU consumption pacing, initiative financials with the **BU Reinvestment Pool** callout, and use case fit. Scroll to the burn chart and linked tickets table.
+5. **`/leaderboard`** — Show which BUs have untagged Devin sessions. Internal Tools is the clear worst offender. Send a nudge.
 
-## Learn More
+## Architecture
 
-To learn more about Next.js, take a look at the following resources:
+| Layer | Tech |
+|-------|------|
+| Framework | Next.js 16 (App Router, TypeScript) |
+| Styling | Tailwind CSS v4 |
+| Charts | Recharts |
+| Database | SQLite via better-sqlite3 |
+| Icons | Lucide React |
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### Key directories
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```
+src/
+  app/           — Routes and API endpoints
+  components/    — Layout, charts
+  lib/           — Database, queries, scoring, utilities
+```
 
-## Deploy on Vercel
+### Data model
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- **BusinessUnit** — 6 seeded BUs
+- **Initiative** — 12 seeded (3 Pending, 6 Approved, 2 Completed, 1 Rejected)
+- **UseCaseFit** — Category + ranking per initiative
+- **DevinSession** — ~400 sessions (75% tagged, 25% untagged)
+- **Ticket** — Jira/Rally tickets linked to initiatives
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### Scoring
+
+The **Devin Funding Score** (0–100) is computed from four components:
+- Savings percentage: 0–40 pts (linear, capped at 50%+)
+- Absolute savings: 0–20 pts (linear, capped at $500k+)
+- Strategic priority: Critical 20 / High 12 / Medium 6
+- Use case fit (best selection): Strong 20 / Good 12 / Moderate 6
+
+### Persona switcher
+
+Top-right dropdown switches between IT Leader, Finance Approver, and BU Admin. All personas see all data — the switcher adjusts sidebar emphasis to guide the demo narrative.
+
+## Integration seams
+
+These are stubbed behind the data layer and ready for real APIs:
+
+| Integration | Current | Swap to |
+|------------|---------|---------|
+| Jira/Rally tickets | SQLite seed data | Jira/Rally REST API |
+| Devin sessions | SQLite seed data | Devin Platform API |
+| Nudge delivery | Toast notification | Email/Slack webhook |
+| Authentication | Persona switcher | SSO/OIDC |
+
+## Environment variables
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `ACU_RATE_USD` | `2.25` | USD-per-ACU conversion rate |
